@@ -1,10 +1,11 @@
 package home.green.test;
 
-import java.util.List;
-
 import home.green.test.RecorderService.LocalBinder;
 import home.yaron.location.LocationTracker;
 import home.yaron.location.LocationTracker.LocationTrackerListener;
+
+import java.util.List;
+
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
@@ -121,11 +122,19 @@ public class MainActivity extends Activity implements OnMapReadyCallback
 	protected void onStart()
 	{	
 		super.onStart();
-		Log.d(TAG,"onStart(..)");		
+		Log.d(TAG,"onStart(..)");
+
+		if( isServiceBound )
+		{
+			recorderService.stopRecording(); // Stop tracking in the background.	
+			List<Location> locationList = recorderService.readLocationsFromFile();
+			if( locationList.size() > 0 )
+				mapController.drawBackgroundLocations(locationList);
+		}
 
 		// Unbind from the recorder service activity is in the foreground.
 		unbindRecorderService();
-		
+
 		// Register to location tracker foreground listener.
 		final ToggleButton trackingButton = (ToggleButton)findViewById(R.id.tracking_button);
 		if( trackingButton.isChecked() )
@@ -168,9 +177,6 @@ public class MainActivity extends Activity implements OnMapReadyCallback
 		// Unbind from the recorder service.
 		if( isServiceBound ) 
 		{
-			// Stop tracking in the background.			
-			recorderService.stopRecording();
-
 			unbindService(serviceConnection);
 			isServiceBound = false;
 		}	

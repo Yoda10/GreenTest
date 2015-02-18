@@ -165,7 +165,8 @@ public class RecorderService extends Service
 	
 	public List<Location> readLocationsFromFile()
 	{
-		final ArrayList<Location> locationList = new ArrayList<Location>(50);
+		// Init
+		final ArrayList<Location> locationList = new ArrayList<Location>();
 
 		try
 		{
@@ -174,18 +175,17 @@ public class RecorderService extends Service
 			final File tempFile = new File(Environment.getExternalStoragePublicDirectory("GreenTest"), LOCATION_FILE_NAME+"2"); // Remove it only for debug.			
 			final BufferedReader bufferedReader = new BufferedReader(new FileReader(tempFile));			
 
-			String aLine = null;			
-
 			// Reading the input stream.
+			String aLine = null;			
 			while( (aLine = bufferedReader.readLine()) != null )
 			{
-				final Location newLocation = new Location(""); //provider name is unecessary
+				final Location newLocation = new Location(""); //provider name is unnecessary
 				newLocation.setLatitude(Double.parseDouble(aLine));
 				newLocation.setLongitude(Double.parseDouble(bufferedReader.readLine()));
 				locationList.add(newLocation);
 			}
 
-			bufferedReader.close();
+			bufferedReader.close();			
 
 			Log.d(TAG,"Locations file read from:"+tempFile.getAbsolutePath());
 		}
@@ -194,6 +194,6 @@ public class RecorderService extends Service
 			Log.e(TAG,"problems reading locatins file.",ex);		
 		}
 
-		return locationList;
-	}
+		return locationList;		
+	}	
 }

@@ -135,6 +135,6 @@ public class MapController
 	
 	public void drawBackgroundLocations(List<Location> locationList)
 	{
-		
+		Log.d(TAG,"drawBackgroundLocations(..)");		
 	}
 }
