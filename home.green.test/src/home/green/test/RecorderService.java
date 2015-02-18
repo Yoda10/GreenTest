@@ -15,7 +15,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Binder;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -29,14 +28,14 @@ import android.util.Log;
 public class RecorderService extends Service 
 {
 	private final static String TAG = RecorderService.class.getSimpleName();	
-	private final static String LOCATION_FILE_NAME = "greenLocations";
+	private final static String LOCATION_FILE_NAME = "greenLocations";	
 	
-	//private BufferedOutputStream bufferedOutput;
 	private BufferedWriter bufferedWriter;
+	private File tempFile;
 
 	// ------- Binding -------
 	
-	private final IBinder binder = new LocalBinder();	
+	private final IBinder binder = new LocalBinder();		
 
 	@Override
 	public IBinder onBind(Intent intent) 
@@ -109,10 +108,9 @@ public class RecorderService extends Service
 		try
 		{
 			// Construct the BufferedOutputStream object.
-			//final File tempFile = File.createTempFile(LOCATION_FILE_NAME,null);
-			final File tempFile = new File(Environment.getExternalStoragePublicDirectory("GreenTest"), LOCATION_FILE_NAME); // Remove it only for debug.			
+			tempFile = File.createTempFile(LOCATION_FILE_NAME,null);						
 			bufferedWriter = new BufferedWriter(new FileWriter(tempFile),1024);		
-			Log.d(TAG,"Locations file created at:"+tempFile.getAbsolutePath());			
+			Log.d(TAG,"Locations file created at:"+tempFile.getAbsolutePath());		
 		}
 		catch(Exception ex)
 		{			
@@ -168,11 +166,12 @@ public class RecorderService extends Service
 		// Init
 		final ArrayList<Location> locationList = new ArrayList<Location>();
 
+		if( tempFile == null)
+			return locationList;
+
 		try
 		{
-			// Construct the BufferedOutputStream object.
-			//final File tempFile = File.createTempFile(LOCATION_FILE_NAME,null);
-			final File tempFile = new File(Environment.getExternalStoragePublicDirectory("GreenTest"), LOCATION_FILE_NAME+"2"); // Remove it only for debug.			
+			// Construct the BufferedOutputStream object.						
 			final BufferedReader bufferedReader = new BufferedReader(new FileReader(tempFile));			
 
 			// Reading the input stream.

@@ -136,5 +136,34 @@ public class MapController
 	public void drawBackgroundLocations(List<Location> locationList)
 	{
 		Log.d(TAG,"drawBackgroundLocations(..)");		
+
+		// Draw first line from last foreground point to first background point.
+		if( mapLastLocation != null )
+		{
+			final LatLng lastForeLatLng = new LatLng(mapLastLocation.getLatitude(), mapLastLocation.getLongitude());			
+			final LatLng firstBackLatLng = new LatLng(locationList.get(0).getLatitude(), locationList.get(0).getLongitude());
+			map.addPolyline(new PolylineOptions()
+			.geodesic(true)
+			.color(Color.BLUE)
+			.width(20)
+			.add(lastForeLatLng)
+			.add(firstBackLatLng));
+		}
+
+		// Draw background lines.
+		for( int i=0; i < locationList.size()-1 ; i++ )
+		{			
+			final LatLng startLatLng = new LatLng(locationList.get(i).getLatitude(), locationList.get(i).getLongitude());			
+			final LatLng endLatLng = new LatLng(locationList.get(i+1).getLatitude(), locationList.get(i+1).getLongitude());
+			map.addPolyline(new PolylineOptions()
+			.geodesic(true)
+			.color(Color.BLUE)
+			.width(20)
+			.add(startLatLng)
+			.add(endLatLng));
+		}
+		
+		// Set the last background location as last map location.
+		setMapLastLocation(locationList.get(locationList.size()-1));
 	}
 }
