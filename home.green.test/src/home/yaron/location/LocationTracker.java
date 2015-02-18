@@ -141,4 +141,10 @@ public class LocationTracker
 	{
 		return this.currentLocation;		
 	}
+	
+	public void dispose(Context context)
+	{
+		removeUpdates(context);
+		locationTrackerInstance = null; // Free the static reference.
+	}
 }

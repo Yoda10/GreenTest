@@ -144,16 +144,21 @@ public class MainActivity extends Activity implements OnMapReadyCallback
 		}
 	}
 	
+	/**
+	 * This is the end of the application, The user request to terminate the application.
+	 * @author Yaron Ronen - 18/02/2015
+	 */
 	@Override
 	public void finish()
 	{	
 		Log.d(TAG,"finish(..)");
 
-		// Unbind from the recorder service activity is in the foreground.
-		unbindRecorderService();
+		dispose();
 
 		final Intent intent = new Intent(this, RecorderService.class);
-		stopService(intent);
+		stopService(intent);		
+		
+		LocationTracker.getInstance().dispose(this);
 
 		super.finish();
 	}
@@ -163,15 +168,20 @@ public class MainActivity extends Activity implements OnMapReadyCallback
 	{	
 		super.onDestroy();
 		Log.d(TAG,"onDestroy(..)");
-		
+
+		dispose();
+	}
+
+	private void dispose()
+	{
 		// Unbind from the recorder service.
 		unbindRecorderService();
-		
+
 		serviceConnection = null;
 		recorderService = null;
 		mapController = null;
 	}
-	
+
 	private void unbindRecorderService()
 	{
 		// Unbind from the recorder service.
