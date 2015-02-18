@@ -1,7 +1,8 @@
 package home.green.test;
 
+import java.util.List;
+
 import home.green.test.RecorderService.LocalBinder;
-import home.green.test.R;
 import home.yaron.location.LocationTracker;
 import home.yaron.location.LocationTracker.LocationTrackerListener;
 import android.app.Activity;
@@ -68,7 +69,7 @@ public class MainActivity extends Activity implements OnMapReadyCallback
 					mapController.clearMap();
 				}
 			}
-		});
+		});		
 	}
 	
 	private LocationTrackerListener createMapLocationTrackerListener()
@@ -138,13 +139,13 @@ public class MainActivity extends Activity implements OnMapReadyCallback
 	public void finish()
 	{	
 		Log.d(TAG,"finish(..)");
-		
+
 		// Unbind from the recorder service activity is in the foreground.
 		unbindRecorderService();
-		
+
 		final Intent intent = new Intent(this, RecorderService.class);
 		stopService(intent);
-				
+
 		super.finish();
 	}
 	

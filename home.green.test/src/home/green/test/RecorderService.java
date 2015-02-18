@@ -3,9 +3,11 @@ package home.green.test;
 import home.yaron.location.LocationTracker;
 import home.yaron.location.LocationTracker.LocationTrackerListener;
 
-import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +15,7 @@ import android.app.Service;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -25,13 +28,15 @@ import android.util.Log;
  */
 public class RecorderService extends Service 
 {
-	private final static String TAG = RecorderService.class.getSimpleName();
+	private final static String TAG = RecorderService.class.getSimpleName();	
+	private final static String LOCATION_FILE_NAME = "greenLocations";
 	
-	private BufferedOutputStream bufferedOutput;
+	//private BufferedOutputStream bufferedOutput;
+	private BufferedWriter bufferedWriter;
 
 	// ------- Binding -------
 	
-	private final IBinder binder = new LocalBinder();
+	private final IBinder binder = new LocalBinder();	
 
 	@Override
 	public IBinder onBind(Intent intent) 
@@ -104,7 +109,10 @@ public class RecorderService extends Service
 		try
 		{
 			// Construct the BufferedOutputStream object.
-			bufferedOutput = new BufferedOutputStream(new FileOutputStream(File.createTempFile("greenLocations", null)));
+			//final File tempFile = File.createTempFile(LOCATION_FILE_NAME,null);
+			final File tempFile = new File(Environment.getExternalStoragePublicDirectory("GreenTest"), LOCATION_FILE_NAME); // Remove it only for debug.			
+			bufferedWriter = new BufferedWriter(new FileWriter(tempFile),1024);		
+			Log.d(TAG,"Locations file created at:"+tempFile.getAbsolutePath());			
 		}
 		catch(Exception ex)
 		{			
@@ -116,13 +124,13 @@ public class RecorderService extends Service
 	{
 		Log.d(TAG,"closeRecorderFile(..)");
 		
-		// Close the BufferedOutputStream
+		// Close the bufferedWriter
 		try 
 		{
-			if( bufferedOutput != null )
+			if( bufferedWriter != null )
 			{
-				bufferedOutput.flush();
-				bufferedOutput.close();
+				bufferedWriter.flush();
+				bufferedWriter.close();
 			}
 		} 
 		catch(Exception ex) 
@@ -131,7 +139,7 @@ public class RecorderService extends Service
 		}
 		finally
 		{
-			bufferedOutput = null;
+			bufferedWriter = null;
 		}
 	}
 	
@@ -139,14 +147,14 @@ public class RecorderService extends Service
 	{
 		try
 		{
-			if( bufferedOutput != null && newLocation != null )
+			if( bufferedWriter != null && newLocation != null )
 			{
 				final String latitudeString = Double.toString(newLocation.getLatitude());
-				final String longitudeString = Double.toString(newLocation.getLongitude());
+				final String longitudeString = Double.toString(newLocation.getLongitude());				
 
-				// Writing to the output stream.
-				bufferedOutput.write(latitudeString.getBytes());
-				bufferedOutput.write(longitudeString.getBytes());
+				// Writing to the writer.
+				bufferedWriter.write(latitudeString+'\n');
+				bufferedWriter.write(longitudeString+'\n');				
 			}
 		} 
 		catch(Exception ex)
@@ -155,8 +163,37 @@ public class RecorderService extends Service
 		}
 	}
 	
-	public List<Location> readLocationFromFile()
+	public List<Location> readLocationsFromFile()
 	{
-		return new ArrayList<Location>(2);
+		final ArrayList<Location> locationList = new ArrayList<Location>(50);
+
+		try
+		{
+			// Construct the BufferedOutputStream object.
+			//final File tempFile = File.createTempFile(LOCATION_FILE_NAME,null);
+			final File tempFile = new File(Environment.getExternalStoragePublicDirectory("GreenTest"), LOCATION_FILE_NAME+"2"); // Remove it only for debug.			
+			final BufferedReader bufferedReader = new BufferedReader(new FileReader(tempFile));			
+
+			String aLine = null;			
+
+			// Reading the input stream.
+			while( (aLine = bufferedReader.readLine()) != null )
+			{
+				final Location newLocation = new Location(""); //provider name is unecessary
+				newLocation.setLatitude(Double.parseDouble(aLine));
+				newLocation.setLongitude(Double.parseDouble(bufferedReader.readLine()));
+				locationList.add(newLocation);
+			}
+
+			bufferedReader.close();
+
+			Log.d(TAG,"Locations file read from:"+tempFile.getAbsolutePath());
+		}
+		catch(Exception ex)
+		{			
+			Log.e(TAG,"problems reading locatins file.",ex);		
+		}
+
+		return locationList;
 	}
 }
