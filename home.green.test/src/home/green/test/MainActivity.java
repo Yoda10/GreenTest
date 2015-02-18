@@ -35,6 +35,8 @@ public class MainActivity extends Activity implements OnMapReadyCallback
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
 	{
+		Log.d(TAG,"onCreate(..)");
+		
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);		
 
@@ -130,6 +132,20 @@ public class MainActivity extends Activity implements OnMapReadyCallback
 			LocationTracker.getInstance().setLocationTrackerListener(createMapLocationTrackerListener());
 			LocationTracker.startRequestLocation(this);
 		}
+	}
+	
+	@Override
+	public void finish()
+	{	
+		Log.d(TAG,"finish(..)");
+		
+		// Unbind from the recorder service activity is in the foreground.
+		unbindRecorderService();
+		
+		final Intent intent = new Intent(this, RecorderService.class);
+		stopService(intent);
+				
+		super.finish();
 	}
 	
 	@Override
