@@ -30,7 +30,7 @@ public class LocationTracker
 
 	private static class LocationTrackerHolder // Lazy singleton holder
 	{
-		private static LocationTracker INSTANCE = new LocationTracker();
+		private final static LocationTracker INSTANCE = new LocationTracker();
 	}	
 
 	public static LocationTracker getInstance()
@@ -146,6 +146,6 @@ public class LocationTracker
 	public void dispose(Context context)
 	{
 		removeUpdates(context);		
-		LocationTrackerHolder.INSTANCE = null; // Free the static reference.
+		//LocationTrackerHolder.INSTANCE = null; // Free the static reference.
 	}
 }
