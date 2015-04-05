@@ -18,24 +18,25 @@ public class LocationTracker
 	// Consts
 	final static float UI_UPDATE_DISTANCE = 10; // meters.
 
-	private static LocationTracker locationTrackerInstance = null; // Singleton
+	//private static LocationTracker locationTrackerInstance = null; // Singleton
 
-	private Context context;
 	private Location currentLocation = null; // The most updated location we have.	
-	private LocationTrackerListener locationTrackerListener = null;	
+	private LocationTrackerListener locationTrackerListener = null;
 
 	private LocationTracker()
 	{
 		// Singleton
 	}
 
+	private static class LocationTrackerHolder // Lazy singleton holder
+	{
+		private static LocationTracker INSTANCE = new LocationTracker();
+	}	
+
 	public static LocationTracker getInstance()
 	{
-		// Create singleton object.
-		if( LocationTracker.locationTrackerInstance == null )
-			LocationTracker.locationTrackerInstance = new LocationTracker();
-
-		return LocationTracker.locationTrackerInstance;
+		// Return singleton object.
+		return LocationTrackerHolder.INSTANCE;	
 	}
 
 	public static void startRequestLocation(Context context)
@@ -63,7 +64,7 @@ public class LocationTracker
 			{
 				currentLocation = lastKnownLocation;
 			}
-			
+
 			if( innerLocationListener != null )
 				locationManager.removeUpdates(innerLocationListener); // Remove old updates, if any.
 			locationManager.requestLocationUpdates(provider, 250, 2F,innerLocationListener);	
@@ -141,10 +142,10 @@ public class LocationTracker
 	{
 		return this.currentLocation;		
 	}
-	
+
 	public void dispose(Context context)
 	{
-		removeUpdates(context);
-		locationTrackerInstance = null; // Free the static reference.
+		removeUpdates(context);		
+		LocationTrackerHolder.INSTANCE = null; // Free the static reference.
 	}
 }
